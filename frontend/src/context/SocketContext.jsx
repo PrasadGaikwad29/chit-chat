@@ -1,41 +1,43 @@
-import { createContext, useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { useAuthContext } from "./AuthContext";
+import { SocketContext } from "./socketContext";
 import io from "socket.io-client";
 
-const SocketContext = createContext();
-
-export const useSocketContext = () => {
-	return useContext(SocketContext);
-};
-
 export const SocketContextProvider = ({ children }) => {
-	const [socket, setSocket] = useState(null);
-	const [onlineUsers, setOnlineUsers] = useState([]);
-	const { authUser } = useAuthContext();
+  const [socket, setSocket] = useState(null);
+  const [onlineUsers, setOnlineUsers] = useState([]);
+  const { authUser } = useAuthContext();
 
-	useEffect(() => {
-		if (authUser) {
-			const socket = io("https://chat-app-yt.onrender.com", {
-				query: {
-					userId: authUser._id,
-				},
-			});
+  useEffect(() => {
+    if (!authUser) {
+      setSocket(null);
+      return;
+    }
 
-			setSocket(socket);
+    const socketConnection = io(
+      import.meta.env.VITE_SOCKET_URL || "http://localhost:5000",
+      {
+        query: {
+          userId: authUser._id,
+        },
+      },
+    );
 
-			// socket.on() is used to listen to the events. can be used both on client and server side
-			socket.on("getOnlineUsers", (users) => {
-				setOnlineUsers(users);
-			});
+    setSocket(socketConnection);
 
-			return () => socket.close();
-		} else {
-			if (socket) {
-				socket.close();
-				setSocket(null);
-			}
-		}
-	}, [authUser]);
+    socketConnection.on("getOnlineUsers", (users) => {
+      setOnlineUsers(users);
+    });
 
-	return <SocketContext.Provider value={{ socket, onlineUsers }}>{children}</SocketContext.Provider>;
+    return () => {
+      socketConnection.close();
+      setSocket(null);
+    };
+  }, [authUser]);
+
+  return (
+    <SocketContext.Provider value={{ socket, onlineUsers }}>
+      {children}
+    </SocketContext.Provider>
+  );
 };
