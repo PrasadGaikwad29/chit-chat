@@ -23,7 +23,11 @@ const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:3000")
 app.use(
   cors({
     origin: (requestOrigin, callback) => {
-      if (!requestOrigin || allowedOrigins.includes(requestOrigin)) {
+      if (
+        !requestOrigin ||
+        allowedOrigins.includes(requestOrigin) ||
+        /^https:\/\/[-a-z0-9]+\.vercel\.app$/i.test(requestOrigin)
+      ) {
         return callback(null, true);
       }
 

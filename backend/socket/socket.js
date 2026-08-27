@@ -6,11 +6,24 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
+const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:3000")
+  .split(",")
+  .map((origin) => origin.trim());
 
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: (process.env.FRONTEND_URL || "http://localhost:3000").split(","),
+    origin: (requestOrigin, callback) => {
+      if (
+        !requestOrigin ||
+        allowedOrigins.includes(requestOrigin) ||
+        /^https:\/\/[-a-z0-9]+\.vercel\.app$/i.test(requestOrigin)
+      ) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Origin not allowed by CORS"));
+    },
     methods: ["GET", "POST"],
     credentials: true,
   },
