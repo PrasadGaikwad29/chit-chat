@@ -6,7 +6,9 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
-const allowedOrigins = (process.env.FRONTEND_URL || "http://localhost:3000")
+const allowedOrigins = (
+  process.env.FRONTEND_URL || "https://chit-chat-eta-ten.vercel.app"
+)
   .split(",")
   .map((origin) => origin.trim());
 

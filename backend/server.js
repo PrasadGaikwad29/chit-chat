@@ -16,7 +16,9 @@ const PORT = process.env.PORT || 5000;
 
 app.use(express.json()); // to parse the incoming requests with JSON payloads (from req.body)
 app.use(cookieParser());
-const allowedOrigins = (process.env.FRONTEND_URL || "https://chit-chat-eta-ten.vercel.app")
+const allowedOrigins = (
+  process.env.FRONTEND_URL || "https://chit-chat-eta-ten.vercel.app"
+)
   .split(",")
   .map((origin) => origin.trim());
 
