@@ -48,4 +48,5 @@ app.get("/health", (req, res) => {
 server.listen(PORT, () => {
   connectToMongoDB();
   console.log(`Server Running on port ${PORT}`);
+  console.log(`CORS enabled for Vercel origins`);
 });
